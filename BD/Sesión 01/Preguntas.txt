@@ -1,0 +1,21 @@
+bubble sort: porque es lento para procesar grandes cantidades de datos?
+
+heapsort: si todos los elementos de la lista son iguales que ocurre? porque es tan bueno para ordenador datos individuales que van entrando?
+
+merge sort: que pasa si se intenta ordenar una gran lista ya ordenada?
+
+insertion sort: porque no es bueno para big data? hasta que cantidad de elementos se considera optimo?
+
+timsort: para big data, conviene usarlo por si solo? funciona mejor en un sistema? o no importa? necesita almacenar la lista completa en memoria o no?
+
+selection sort: en que se diferencia del bubble sort? en una lista pequeña es mejor utilizar esta ordenación o sigue viniendo mejor usar una ordenación mas sofisticada al igual que en listas grandes?
+
+gnome sort: que otro nombre recibe en base a su utilidad? porque recibe ese nombre? que usos reales tendría?
+
+cocktail shacker sort: esta ordenación ordena ambos extremos de la lista a la vez?
+
+quick sort: donde combine seleccionar el pivote dentro de la lista?
+
+external merge sort: sirve esta ordenación para gestionar cantidades masivas de datos? Se puede paralelizar?
+
+
