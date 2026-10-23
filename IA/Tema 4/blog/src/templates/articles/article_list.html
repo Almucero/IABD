@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}{% if category %}{{ category.name }} | {% endif %}Acuario en casa{% endblock %}
+
+{% block content %}
+    <header class="page-heading">
+        {% if category %}
+            <p class="eyebrow">Categoría</p>
+            <h1>{{ category.name }}</h1>
+        {% else %}
+            <p class="eyebrow">Guía para empezar</p>
+            <h1>Cuida mejor de tu acuario</h1>
+            <p>Consejos claros y prácticos para disfrutar de peces sanos y un acuario equilibrado.</p>
+        {% endif %}
+    </header>
+
+    {% if articles %}
+        <section class="article-grid" aria-label="Artículos">
+            {% for article in articles %}
+                <article class="article-card">
+                    <p class="eyebrow">{{ article.category.name }}</p>
+                    <h2><a href="{% url 'article-detail' article.slug %}">{{ article.title }}</a></h2>
+                    <p>{{ article.summary }}</p>
+                    {% if article.published_at %}
+                        <time datetime="{{ article.published_at|date:'c' }}">{{ article.published_at|date:"j \d\e F \d\e Y" }}</time>
+                    {% endif %}
+                </article>
+            {% endfor %}
+        </section>
+    {% else %}
+        <p class="empty-state">Todavía no hay artículos publicados en esta sección.</p>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,28 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Consejos sencillos para cuidar peces y acuarios.">
+    <title>{% block title %}Acuario en casa{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'articles/site.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="{% url 'home' %}">Acuario en casa</a>
+        <nav aria-label="Navegación principal">
+            <a href="{% url 'home' %}">Inicio</a>
+            {% for category_item in published_categories %}
+                <a href="{% url 'category-detail' category_item.slug %}">{{ category_item.name }}</a>
+            {% endfor %}
+        </nav>
+    </header>
+    <main class="page-content">
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="site-footer">
+        <p>Contenido divulgativo: consulta a un profesional veterinario ante dudas sobre la salud de tus peces.</p>
+    </footer>
+</body>
+</html>

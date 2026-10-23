@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}{{ article.title }} | Acuario en casa{% endblock %}
+
+{% block content %}
+    <article class="article-detail">
+        <a class="back-link" href="{% url 'category-detail' article.category.slug %}">← {{ article.category.name }}</a>
+        <h1>{{ article.title }}</h1>
+        {% if article.published_at %}
+            <p class="article-date"><time datetime="{{ article.published_at|date:'c' }}">{{ article.published_at|date:"j \d\e F \d\e Y" }}</time></p>
+        {% endif %}
+        <p class="article-summary">{{ article.summary }}</p>
+        <div class="article-body">{{ article.body|linebreaks }}</div>
+    </article>
+{% endblock %}
