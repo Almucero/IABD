@@ -1,119 +1,165 @@
 from datetime import timedelta
+from pathlib import Path
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db import models
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import Article, Category
+from .models import Article, SiteProfile
 
 
-class PublicArticleViewsTests(TestCase):
+class PublicBlogTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.category = Category.objects.create(name="Cuidados", slug="cuidados")
+        Article.objects.all().delete()
+        now = timezone.now()
         cls.older_article = Article.objects.create(
-            title="Primeros pasos",
-            slug="primeros-pasos",
-            summary="Una guía para empezar.",
-            body="Contenido del artículo.",
-            category=cls.category,
-            published_at=timezone.now() - timedelta(days=1),
+            title="Sensores para empezar",
+            slug="sensores-para-empezar",
+            summary="Una guía introductoria a los sensores.",
+            body=(
+                "Los sensores ayudan a un robot a percibir su entorno.\n\n"
+                "## Elegir un sensor\n\n"
+                "Empieza por definir qué dato necesita medir el proyecto."
+            ),
+            author="Alex Robótica",
+            published_at=now - timedelta(days=1),
             is_published=True,
         )
         cls.newer_article = Article.objects.create(
-            title="Agua limpia",
-            slug="agua-limpia",
-            summary="Consejos de mantenimiento.",
-            body="Más contenido.",
-            category=cls.category,
-            published_at=timezone.now(),
+            title="Un brazo robótico sencillo",
+            slug="brazo-robotico-sencillo",
+            summary="Conoce las partes básicas de un brazo robótico.",
+            body="Un proyecto para aprender sobre movimiento.",
+            author="Alex Robótica",
+            published_at=now,
             is_published=True,
         )
         cls.draft = Article.objects.create(
             title="Borrador privado",
             slug="borrador-privado",
-            summary="No debe mostrarse.",
-            body="Contenido privado.",
-            category=cls.category,
-        )
-        cls.other_category = Category.objects.create(
-            name="Alimentación",
-            slug="alimentacion",
-        )
-        cls.other_category_article = Article.objects.create(
-            title="Comida adecuada",
-            slug="comida-adecuada",
-            summary="Consejos de alimentación.",
-            body="Contenido sobre alimentación.",
-            category=cls.other_category,
-            published_at=timezone.now() - timedelta(days=2),
-            is_published=True,
+            summary="Todavía no está listo.",
+            body="Texto de un borrador que no debe ser público.",
+            author="Alex Robótica",
         )
 
-    def test_home_shows_published_articles_newest_first(self):
+    def test_home_shows_published_articles_in_date_order(self):
         response = self.client.get(reverse("home"))
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             list(response.context["articles"]),
-            [self.newer_article, self.older_article, self.other_category_article],
+            [self.newer_article, self.older_article],
         )
         self.assertContains(response, self.older_article.title)
         self.assertContains(response, self.older_article.summary)
-        self.assertContains(response, self.category.name)
+        self.assertContains(response, self.older_article.author)
         self.assertContains(
             response,
             reverse("article-detail", kwargs={"slug": self.older_article.slug}),
         )
         self.assertNotContains(response, self.draft.title)
 
-    def test_category_page_only_shows_published_articles(self):
+    def test_empty_home_has_an_informative_message(self):
+        Article.objects.all().delete()
+
+        response = self.client.get(reverse("home"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Aún no hay artículos publicados")
+
+    def test_published_article_shows_author_date_paragraphs_and_subheadings(self):
         response = self.client.get(
-            reverse("category-detail", kwargs={"slug": self.category.slug})
+            reverse("article-detail", kwargs={"slug": self.older_article.slug})
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.context["articles"]), 2)
-        self.assertNotContains(response, self.draft.title)
-        self.assertNotContains(response, self.other_category_article.title)
-        self.assertContains(response, reverse("home"))
-        self.assertContains(response, reverse("category-detail", kwargs={"slug": "cuidados"}))
+        self.assertContains(response, self.older_article.title)
+        self.assertContains(response, self.older_article.author)
+        self.assertContains(response, self.older_article.published_at.strftime("%Y"))
+        self.assertContains(response, "<h2>Elegir un sensor</h2>", html=True)
+        self.assertContains(response, "Los sensores ayudan a un robot")
 
-    def test_published_article_detail_shows_content_and_navigation(self):
+    def test_article_body_escapes_html_instead_of_rendering_user_markup(self):
+        self.older_article.body = "<script>alert('x')</script>"
+        self.older_article.save()
+
         response = self.client.get(
-            reverse("article-detail", kwargs={"slug": self.newer_article.slug})
+            reverse("article-detail", kwargs={"slug": self.older_article.slug})
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, self.newer_article.title)
-        self.assertContains(response, self.newer_article.body)
-        self.assertContains(response, self.category.name)
-        self.assertContains(response, reverse("home"))
-        self.assertContains(
-            response,
-            reverse("category-detail", kwargs={"slug": self.category.slug}),
-        )
+        self.assertNotContains(response, "<script>")
+        self.assertContains(response, "&lt;script&gt;")
 
-    def test_unpublished_article_detail_returns_404_without_content(self):
-        response = self.client.get(
-            reverse("article-detail", kwargs={"slug": self.draft.slug})
+    def test_unpublished_and_missing_articles_return_404(self):
+        for slug in (self.draft.slug, "no-existe"):
+            with self.subTest(slug=slug):
+                response = self.client.get(
+                    reverse("article-detail", kwargs={"slug": slug})
+                )
+                self.assertEqual(response.status_code, 404)
+                self.assertNotContains(
+                    response,
+                    self.draft.body,
+                    status_code=404,
+                )
+
+    def test_navigation_links_home_and_about_from_public_pages(self):
+        detail_response = self.client.get(
+            reverse("article-detail", kwargs={"slug": self.older_article.slug})
         )
+        about_response = self.client.get(reverse("about"))
+
+        self.assertContains(detail_response, reverse("home"))
+        self.assertContains(detail_response, reverse("about"))
+        self.assertEqual(about_response.status_code, 200)
+        self.assertContains(about_response, reverse("home"))
+        self.assertContains(about_response, reverse("about"))
+        self.assertContains(about_response, "Sobre mí")
+
+    def test_about_page_uses_editable_profile(self):
+        profile = SiteProfile.objects.get(pk=1)
+        profile.author_name = "Roberta Inventora"
+        profile.biography = "Me interesa compartir proyectos de robótica."
+        profile.save()
+
+        response = self.client.get(reverse("about"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Roberta Inventora")
+        self.assertContains(response, "compartir proyectos de robótica")
+
+    def test_there_is_no_public_registration_route(self):
+        response = self.client.get("/accounts/register/")
 
         self.assertEqual(response.status_code, 404)
-        self.assertNotContains(response, self.draft.body, status_code=404)
+
+    def test_article_publication_has_true_and_false_boolean_states(self):
+        publication_field = Article._meta.get_field("is_published")
+
+        self.assertIsInstance(publication_field, models.BooleanField)
+        self.assertFalse(self.draft.is_published)
+        self.assertTrue(self.older_article.is_published)
+
+    def test_robotics_image_is_stored_under_the_configured_media_directory(self):
+        image_path = Path(settings.MEDIA_ROOT) / "images" / "robot-orbit.svg"
+
+        self.assertTrue(image_path.is_file())
 
 
 class ArticleAdminTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.category = Category.objects.create(name="Cuidados", slug="cuidados")
         cls.article = Article.objects.create(
-            title="Primeros pasos",
-            slug="primeros-pasos",
-            summary="Una guía para empezar.",
-            body="Contenido inicial.",
-            category=cls.category,
+            title="Prueba de sensores",
+            slug="prueba-de-sensores",
+            summary="Una práctica de robótica.",
+            body="Contenido del artículo.",
+            author="Alex Robótica",
         )
         get_user_model().objects.create_superuser(
             username="admin",
@@ -122,11 +168,9 @@ class ArticleAdminTests(TestCase):
         )
 
     def setUp(self):
-        self.client.force_login(
-            get_user_model().objects.get(username="admin")
-        )
+        self.client.force_login(get_user_model().objects.get(username="admin"))
 
-    def test_article_admin_lists_category_publication_status_and_searches_title(self):
+    def test_admin_can_search_and_edit_articles(self):
         response = self.client.get(
             reverse("admin:articles_article_changelist"),
             {"q": self.article.title},
@@ -134,53 +178,69 @@ class ArticleAdminTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.article.title)
-        self.assertContains(response, self.category.name)
-        self.assertContains(response, "No")
-
-    def test_admin_can_create_and_edit_category_and_article(self):
-        category_add_url = reverse("admin:articles_category_add")
-        response = self.client.post(
-            category_add_url,
-            {"name": "Alimentación", "slug": "alimentacion", "_save": "Guardar"},
-        )
-        self.assertEqual(response.status_code, 302)
-        category = Category.objects.get(slug="alimentacion")
+        self.assertContains(response, self.article.author)
 
         response = self.client.post(
-            reverse("admin:articles_category_change", args=[category.pk]),
-            {"name": "Nutrición", "slug": "nutricion", "_save": "Guardar"},
-        )
-        self.assertEqual(response.status_code, 302)
-        category.refresh_from_db()
-        self.assertEqual(category.name, "Nutrición")
-
-        article_add_url = reverse("admin:articles_article_add")
-        response = self.client.post(
-            article_add_url,
+            reverse("admin:articles_article_change", args=[self.article.pk]),
             {
-                "title": "Alimentación equilibrada",
-                "slug": "alimentacion-equilibrada",
-                "summary": "Una pauta básica.",
-                "body": "Contenido del artículo.",
-                "category": category.pk,
+                "title": "Prueba de sensores actualizada",
+                "slug": self.article.slug,
+                "summary": "Resumen actualizado.",
+                "body": "Contenido revisado.",
+                "author": "Roberta Inventora",
                 "_save": "Guardar",
             },
         )
-        self.assertEqual(response.status_code, 302)
-        article = Article.objects.get(slug="alimentacion-equilibrada")
 
+        self.assertEqual(response.status_code, 302)
+        self.article.refresh_from_db()
+        self.assertEqual(self.article.title, "Prueba de sensores actualizada")
+        self.assertEqual(self.article.author, "Roberta Inventora")
+
+    def test_admin_can_create_and_delete_articles(self):
         response = self.client.post(
-            reverse("admin:articles_article_change", args=[article.pk]),
+            reverse("admin:articles_article_add"),
             {
-                "title": "Alimentación adecuada",
-                "slug": article.slug,
-                "summary": "Una pauta actualizada.",
-                "body": "Contenido actualizado.",
-                "category": category.pk,
+                "title": "Nuevo proyecto",
+                "slug": "nuevo-proyecto",
+                "summary": "Resumen del proyecto.",
+                "body": "Contenido del proyecto.",
+                "author": "Alex Robótica",
                 "_save": "Guardar",
             },
         )
+
         self.assertEqual(response.status_code, 302)
-        article.refresh_from_db()
-        self.assertEqual(article.title, "Alimentación adecuada")
-        self.assertEqual(article.summary, "Una pauta actualizada.")
+        article = Article.objects.get(slug="nuevo-proyecto")
+
+        response = self.client.post(
+            reverse("admin:articles_article_delete", args=[article.pk]),
+            {"post": "yes"},
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Article.objects.filter(pk=article.pk).exists())
+
+    def test_admin_can_update_author_presentation(self):
+        response = self.client.post(
+            reverse("admin:articles_siteprofile_change", args=[1]),
+            {
+                "site_name": "Robótica abierta",
+                "author_name": "Alex Robótica",
+                "biography": "Comparto lo que aprendo construyendo robots.",
+                "_save": "Guardar",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        profile = SiteProfile.objects.get(pk=1)
+        self.assertEqual(profile.site_name, "Robótica abierta")
+        self.assertEqual(profile.author_name, "Alex Robótica")
+
+    def test_anonymous_user_cannot_access_admin(self):
+        self.client.logout()
+
+        response = self.client.get(reverse("admin:articles_article_changelist"))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/admin/login/", response.url)

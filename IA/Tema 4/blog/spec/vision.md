@@ -2,14 +2,15 @@
 
 ## Personas y necesidad
 
-El producto está dirigido a personas con poca experiencia en acuariofilia que necesitan orientarse sobre el cuidado de sus peces y el mantenimiento de un acuario. Al comenzar, pueden tener dificultades para localizar información introductoria, clara y organizada por tema.
+El blog se dirige a personas interesadas en la robótica que quieren leer artículos y conocer a quien los escribe. El autor necesita compartir sus textos y mantener una presentación personal sin tener que cambiar el código del sitio.
 
 ## Valor que ofrece
 
-El blog reúne artículos breves y comprensibles en un espacio de consulta organizado. La navegación por categorías ayuda a descubrir contenido relacionado, mientras que cada página de artículo ofrece una lectura directa, sin exigir registro ni interacción social.
+El sitio ofrece una experiencia clara de lectura: los artículos recientes se encuentran desde la portada, cada texto tiene una página propia y la sección «Sobre mí» aporta contexto sobre su autoría.
 
 ## Principios del producto
 
-- Priorizar la claridad y la facilidad de lectura frente a funciones avanzadas.
-- Mantener la experiencia centrada en descubrir y consultar contenido.
-- Presentar la información como divulgación para principiantes, no como atención veterinaria.
+- Priorizar el contenido y la legibilidad.
+- Mantener la navegación sencilla y accesible.
+- Permitir la edición del contenido desde Django Admin.
+- Evitar funciones sociales y editoriales avanzadas en la primera versión.

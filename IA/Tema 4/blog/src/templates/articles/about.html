@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Sobre mí | {{ site_profile.site_name|default:"Bitácora Robótica" }}{% endblock %}
+
+{% block content %}
+    <article class="about-page">
+        <header class="about-heading">
+            <p class="eyebrow">La persona detrás de la bitácora</p>
+            <h1>Sobre mí<span class="heading-period">.</span></h1>
+        </header>
+        <div class="about-card">
+            <div class="about-avatar" aria-hidden="true">RB</div>
+            <div class="about-copy">
+                <p class="eyebrow">Autor/a</p>
+                <h2>{{ profile.author_name }}</h2>
+                <div class="article-body">{{ profile.biography|linebreaks }}</div>
+            </div>
+        </div>
+        <a class="text-link" href="{% url 'home' %}"><span aria-hidden="true">←</span> Volver al inicio</a>
+    </article>
+{% endblock %}

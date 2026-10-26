@@ -1,51 +1,154 @@
-# PRD: blog sobre peces con Django
+# PRD: Blog de robótica
 
-Este documento concreta los requisitos funcionales y técnicos de implementación. El objetivo y los límites de producto se definen en [spec/scope.md](spec/scope.md); la dirección editorial y visual, en [briefing.md](briefing.md).
+## 1. Resumen
 
-## 1. Datos
+Crear un blog de robótica sencillo, claro y adaptable a móviles y ordenadores. Las personas visitantes podrán consultar los artículos recientes, leer cada artículo completo y conocer al autor en una sección «Sobre mí». El sitio se implementará con Django.
 
-Crear una aplicación Django para el blog con los siguientes modelos:
+## 2. Objetivo y contexto
 
-### `Category`
+El producto busca compartir artículos sobre robótica en una experiencia centrada en la lectura. La navegación debe ser sencilla y el contenido debe poder actualizarse sin modificar manualmente las plantillas del sitio.
 
-- `name`: nombre visible de la categoría.
-- `slug`: identificador único utilizado en la URL.
+## 3. Usuarios
 
-### `Article`
+- **Visitante:** persona interesada en leer artículos de robótica y conocer al autor.
+- **Editor del sitio:** persona responsable de añadir y actualizar los artículos y la presentación del autor.
 
-- `title`: título del artículo.
-- `slug`: identificador único utilizado en la URL.
-- `summary`: resumen breve para los listados.
-- `body`: contenido completo del artículo.
-- `category`: relación obligatoria con `Category`.
-- `created_at`: fecha de creación automática.
-- `updated_at`: fecha de modificación automática.
-- `published_at`: fecha y hora de publicación; puede estar vacía mientras el artículo no se haya publicado.
-- `is_published`: indicador de publicación y visibilidad pública.
+No habrá cuentas públicas ni registro de lectores. Para mantener el contenido se contempla el panel administrativo estándar de Django, reservado al editor del sitio.
 
-Usar migraciones de Django para crear y modificar el esquema. SQLite es suficiente para la configuración inicial.
+## 4. Alcance del producto
 
-## 2. Administración de contenido
+### Incluido
 
-- Registrar `Category` y `Article` en Django Admin.
-- Permitir crear y editar los campos de ambos modelos.
-- En la lista de artículos, mostrar título, categoría y estado de publicación.
-- Permitir buscar artículos por título.
-- El contenido no publicado debe quedar excluido de todas las páginas públicas.
+1. Portada con el nombre del blog y una lista de artículos recientes.
+2. Página individual para cada artículo.
+3. Página «Sobre mí» con una presentación breve del autor.
+4. Navegación visible entre la portada y «Sobre mí».
+5. Diseño adaptable, legible y accesible, con prioridad en el contenido.
+6. Contenido inicial de ejemplo que pueda sustituirse.
+7. Gestión básica del contenido mediante el panel administrativo de Django.
 
-## 3. Páginas y rutas públicas
+### Excluido
 
-- `GET /`: listado de artículos publicados, del más reciente al más antiguo.
-- `GET /categoria/<slug>/`: listado de artículos publicados asociados a la categoría indicada.
-- `GET /articulo/<slug>/`: detalle de un artículo publicado.
+- Cuentas o perfiles para lectores.
+- Comentarios.
+- Suscripciones o boletines.
+- Buscador.
+- Flujos editoriales avanzados, como revisión, programación de publicaciones o múltiples roles.
+- Funciones de interacción social.
 
-Las consultas públicas deben filtrar por `is_published`. Se pueden implementar con vistas genéricas de Django (`ListView` y `DetailView`) o vistas equivalentes.
+## 5. Requisitos funcionales
 
-## 4. Plantillas y recursos estáticos
+### RF-01: Mostrar la portada
 
-- Crear plantillas para el inicio, el listado de categoría y el detalle de artículo.
-- Reutilizar una plantilla base para la estructura y navegación comunes.
-- Servir los estilos CSS mediante el sistema de archivos estáticos de Django.
-- Incluir enlaces a categorías y una forma de volver al inicio desde las páginas interiores.
-- En los listados, mostrar título, categoría y resumen; cada artículo debe enlazar a su detalle.
-- En el detalle, mostrar el contenido completo y su categoría.
+La portada debe mostrar el nombre del blog y una lista de artículos recientes publicados, ordenados del más nuevo al más antiguo. Cada elemento debe incluir título, fecha y un extracto, y enlazar al artículo completo.
+
+**Criterios de aceptación**
+
+- Al visitar la ruta raíz, se muestra la portada.
+- Los artículos publicados aparecen en orden cronológico descendente.
+- Cada artículo de la lista permite abrir su página individual.
+- Si todavía no hay artículos publicados, se muestra un mensaje informativo en lugar de una lista vacía sin contexto.
+
+### RF-02: Leer un artículo
+
+Cada artículo debe tener una página propia que muestre título, fecha de publicación, autoría y contenido. El texto debe admitir párrafos y subtítulos para facilitar la lectura.
+
+**Criterios de aceptación**
+
+- La página muestra todos los datos disponibles del artículo.
+- El contenido mantiene una estructura legible y conserva sus párrafos y subtítulos.
+- Una ruta de artículo inexistente devuelve una página de no encontrado (HTTP 404).
+
+### RF-03: Consultar «Sobre mí»
+
+La sección «Sobre mí» debe presentar brevemente al autor y ser accesible desde la navegación principal.
+
+**Criterios de aceptación**
+
+- Existe una página identificable como «Sobre mí».
+- La navegación principal incluye un enlace a dicha página.
+- El contenido inicial de presentación puede sustituirse por el del autor.
+
+### RF-04: Navegar por el sitio
+
+Las páginas deben ofrecer navegación sencilla entre la portada y «Sobre mí». Desde un artículo se debe poder volver a la portada.
+
+**Criterios de aceptación**
+
+- Los enlaces principales funcionan desde las páginas del sitio.
+- Los enlaces tienen nombres claros y comprensibles.
+- No se requiere JavaScript para la navegación básica.
+
+### RF-05: Gestionar contenido
+
+El editor podrá crear, editar y retirar artículos y actualizar el texto de «Sobre mí» a través del panel administrativo estándar de Django.
+
+**Criterios de aceptación**
+
+- El panel administrativo permite gestionar los artículos y la presentación del autor.
+- Los artículos no publicados no aparecen en las páginas públicas.
+- No se ofrece un proceso de registro público.
+
+## 6. Requisitos de contenido y datos
+
+### Artículo
+
+Cada artículo tendrá, como mínimo:
+
+- Título.
+- Identificador legible para la URL (slug).
+- Contenido.
+- Autoría.
+- Fecha de publicación.
+- Estado de publicación.
+
+Los artículos publicados se mostrarán en la portada. Los borradores solo estarán disponibles para el editor autenticado mediante el panel administrativo.
+
+El cuerpo admite párrafos separados por líneas en blanco y subtítulos en líneas que comienzan con `## `.
+
+### Presentación del autor
+
+La sección «Sobre mí» tendrá un texto breve editable. Para la primera versión puede existir una única presentación del sitio.
+
+### Contenido inicial
+
+La entrega incluirá contenido de ejemplo relacionado con robótica. Este contenido deberá poder sustituirse o eliminarse desde la gestión de contenido.
+
+## 7. Requisitos no funcionales
+
+- **Adaptabilidad:** las páginas deben poder utilizarse en pantallas pequeñas y grandes sin desplazamiento horizontal innecesario.
+- **Legibilidad:** tipografía, contraste, espaciado y longitud de línea deben favorecer la lectura prolongada.
+- **Accesibilidad:** usar HTML semántico, estructura de encabezados coherente, enlaces descriptivos y controles utilizables con teclado.
+- **Rendimiento:** las páginas informativas deben renderizarse en el servidor con Django y evitar dependencias de JavaScript innecesarias.
+- **Robustez:** las rutas inválidas de artículos deben mostrar una respuesta 404 adecuada.
+- **Seguridad:** el panel administrativo no debe exponer operaciones de edición a visitantes anónimos; se deben seguir las prácticas de seguridad de Django para producción.
+
+## 8. Propuesta técnica
+
+- **Backend y renderizado:** Django, con vistas y plantillas del servidor.
+- **Persistencia:** modelos Django y migraciones para artículos y presentación del autor.
+- **Gestión editorial:** Django Admin, restringido a usuarios autorizados.
+- **Interfaz:** plantillas HTML semánticas y CSS adaptable; JavaScript solo si una necesidad concreta lo justifica.
+- **Base de datos:** SQLite para desarrollo inicial. La elección de base de datos para producción queda pendiente de las necesidades de despliegue.
+
+## 9. Rutas propuestas
+
+- `/` — portada y artículos recientes.
+- `/sobre-mi/` — presentación del autor.
+- `/articulos/<slug>/` — detalle de un artículo.
+- `/admin/` — panel administrativo de Django, con acceso restringido.
+
+## 10. Métricas de éxito
+
+- Un visitante puede llegar desde la portada al artículo elegido y leerlo completo.
+- Un visitante puede encontrar y consultar la sección «Sobre mí».
+- Las páginas se pueden utilizar en móvil y escritorio sin perder contenido o navegación.
+- El editor puede actualizar los artículos y la presentación sin editar las plantillas.
+
+## 11. Supuestos y decisiones pendientes
+
+- El tema del contenido es la robótica, de acuerdo con el briefing.
+- El sitio tendrá un editor y una presentación principal del autor en su primera versión.
+- El idioma inicial del sitio será el español.
+- El dominio, identidad visual, contenido definitivo y entorno de despliegue todavía no están definidos.
+- La selección de base de datos para producción dependerá del entorno donde se publique el sitio.

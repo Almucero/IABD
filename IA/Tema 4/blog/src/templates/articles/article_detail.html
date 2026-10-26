@@ -1,15 +1,23 @@
 {% extends "base.html" %}
+{% load article_content %}
 
-{% block title %}{{ article.title }} | Acuario en casa{% endblock %}
+{% block title %}{{ article.title }} | {{ site_profile.site_name|default:"Bitácora Robótica" }}{% endblock %}
 
 {% block content %}
     <article class="article-detail">
-        <a class="back-link" href="{% url 'category-detail' article.category.slug %}">← {{ article.category.name }}</a>
-        <h1>{{ article.title }}</h1>
-        {% if article.published_at %}
-            <p class="article-date"><time datetime="{{ article.published_at|date:'c' }}">{{ article.published_at|date:"j \d\e F \d\e Y" }}</time></p>
-        {% endif %}
-        <p class="article-summary">{{ article.summary }}</p>
-        <div class="article-body">{{ article.body|linebreaks }}</div>
+        <a class="back-link" href="{% url 'home' %}"><span aria-hidden="true">←</span> Volver a los artículos</a>
+        <header class="article-header">
+            <p class="eyebrow">Artículo · Robótica</p>
+            <h1>{{ article.title }}</h1>
+            <p class="article-summary">{{ article.summary }}</p>
+            <div class="article-byline">
+                <span class="author-avatar" aria-hidden="true">{{ article.author|slice:":1"|upper }}</span>
+                <span>Por <strong>{{ article.author }}</strong></span>
+                <span class="byline-divider" aria-hidden="true"></span>
+                <time datetime="{{ article.published_at|date:'c' }}">{{ article.published_at|date:"j \d\e F \d\e Y" }}</time>
+            </div>
+        </header>
+        <div class="article-body">{{ article.body|article_content }}</div>
+        <a class="back-link bottom-link" href="{% url 'home' %}"><span aria-hidden="true">←</span> Volver a los artículos</a>
     </article>
 {% endblock %}

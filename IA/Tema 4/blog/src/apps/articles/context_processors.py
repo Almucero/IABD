@@ -1,9 +1,5 @@
-from .models import Category
+from .models import SiteProfile
 
 
-def published_categories(request):
-    return {
-        "published_categories": Category.objects.filter(
-            articles__is_published=True
-        ).distinct()
-    }
+def site_profile(request):
+    return {"site_profile": SiteProfile.objects.filter(pk=1).first()}

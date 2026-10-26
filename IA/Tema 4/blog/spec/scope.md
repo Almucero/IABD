@@ -2,20 +2,21 @@
 
 ## Objetivo
 
-Ofrecer a las personas que empiezan en la acuariofilia una forma sencilla de encontrar y leer artículos sobre cuidados básicos de peces y acuarios, y permitir que una persona administradora mantenga ese contenido sin modificar código.
+Publicar y compartir artículos de robótica en un sitio sencillo centrado en la lectura, con una página «Sobre mí» para presentar al autor y una administración que permita mantener el contenido sin editar plantillas.
 
 ## Incluido en la primera versión
 
-- Consulta pública, sin cuenta, de artículos publicados.
-- Inicio con artículos recientes, navegación por categoría y página de detalle.
-- Gestión de categorías y artículos mediante Django Admin.
-- Presentación adaptable a móviles y ordenadores.
+- Portada con el nombre del blog y los artículos publicados más recientes.
+- Página individual con el contenido, autoría y fecha de cada artículo.
+- Página «Sobre mí», editable desde la administración.
+- Navegación entre portada, artículos y presentación del autor.
+- Gestión editorial mediante Django Admin.
+- Contenido de ejemplo editable y diseño adaptable, legible y accesible.
 
 ## Fuera de alcance
 
-- Registro o inicio de sesión para visitantes.
-- Comentarios, valoraciones o interacción entre lectores.
-- Tienda en línea.
-- Búsqueda, etiquetas o recomendaciones personalizadas.
-- Editor de texto enriquecido.
-- Flujo de aprobación con varios roles.
+- Registro, perfiles o cuentas públicas para lectores.
+- Comentarios o funciones de interacción social.
+- Suscripciones o boletines.
+- Buscador.
+- Flujos de revisión, programación de publicaciones o múltiples roles editoriales.

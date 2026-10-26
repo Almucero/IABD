@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" fill="none">
+  <defs>
+    <linearGradient id="shell" x1="143" y1="127" x2="271" y2="280" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#294651"/>
+      <stop offset="1" stop-color="#14252F"/>
+    </linearGradient>
+    <filter id="glow" x="0" y="0" width="400" height="400" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+  </defs>
+  <circle cx="200" cy="200" r="153" stroke="#70E1C0" stroke-opacity=".18"/>
+  <ellipse cx="200" cy="200" rx="78" ry="153" stroke="#70E1C0" stroke-opacity=".24" transform="rotate(35 200 200)"/>
+  <ellipse cx="200" cy="200" rx="78" ry="153" stroke="#70E1C0" stroke-opacity=".18" transform="rotate(-35 200 200)"/>
+  <path d="M82 115h32m-16-16v32" stroke="#F4A261" stroke-opacity=".7" stroke-linecap="round"/>
+  <circle cx="98" cy="115" r="4" fill="#F4A261"/>
+  <path d="M290 278h42m-21-21v42" stroke="#70E1C0" stroke-opacity=".6" stroke-linecap="round"/>
+  <circle cx="311" cy="278" r="4" fill="#70E1C0"/>
+  <rect x="126" y="139" width="148" height="130" rx="37" fill="url(#shell)" stroke="#587984" stroke-width="1.5"/>
+  <path d="M201 139v-35" stroke="#7899A0" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="201" cy="99" r="9" fill="#F4A261" fill-opacity=".25" filter="url(#glow)"/>
+  <circle cx="201" cy="99" r="5" fill="#F4A261"/>
+  <circle cx="172" cy="193" r="12" fill="#70E1C0" fill-opacity=".22" filter="url(#glow)"/>
+  <circle cx="228" cy="193" r="12" fill="#70E1C0" fill-opacity=".22" filter="url(#glow)"/>
+  <circle cx="172" cy="193" r="6" fill="#70E1C0"/>
+  <circle cx="228" cy="193" r="6" fill="#70E1C0"/>
+  <path d="M184 224c9 8 20 8 29 0" stroke="#91AEB5" stroke-width="3" stroke-linecap="round"/>
+  <path d="M139 274v21m124-21v21" stroke="#587984" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="139" cy="300" r="8" fill="#294651" stroke="#70E1C0" stroke-opacity=".5"/>
+  <circle cx="263" cy="300" r="8" fill="#294651" stroke="#70E1C0" stroke-opacity=".5"/>
+</svg>

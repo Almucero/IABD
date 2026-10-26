@@ -1,7 +1,7 @@
+from django.shortcuts import get_object_or_404, render
 from django.views.generic import DetailView, ListView
-from django.shortcuts import get_object_or_404
 
-from .models import Article, Category
+from .models import Article, SiteProfile
 
 
 class PublishedArticleListView(ListView):
@@ -10,18 +10,7 @@ class PublishedArticleListView(ListView):
     context_object_name = "articles"
 
     def get_queryset(self):
-        return Article.objects.filter(is_published=True).select_related("category")
-
-
-class CategoryArticleListView(PublishedArticleListView):
-    def get_queryset(self):
-        self.category = get_object_or_404(Category, slug=self.kwargs["slug"])
-        return super().get_queryset().filter(category=self.category)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["category"] = self.category
-        return context
+        return Article.objects.filter(is_published=True)
 
 
 class PublishedArticleDetailView(DetailView):
@@ -30,4 +19,9 @@ class PublishedArticleDetailView(DetailView):
     context_object_name = "article"
 
     def get_queryset(self):
-        return Article.objects.filter(is_published=True).select_related("category")
+        return Article.objects.filter(is_published=True)
+
+
+def about(request):
+    profile = get_object_or_404(SiteProfile, pk=1)
+    return render(request, "articles/about.html", {"profile": profile})
