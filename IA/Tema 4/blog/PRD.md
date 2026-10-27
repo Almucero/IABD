@@ -26,6 +26,7 @@ No habrá cuentas públicas ni registro de lectores. Para mantener el contenido 
 5. Diseño adaptable, legible y accesible, con prioridad en el contenido.
 6. Contenido inicial de ejemplo que pueda sustituirse.
 7. Gestión básica del contenido mediante el panel administrativo de Django.
+8. API REST para consultar artículos publicados y crear borradores mediante autenticación por token de Django.
 
 ### Excluido
 
@@ -89,6 +90,19 @@ El editor podrá crear, editar y retirar artículos y actualizar el texto de «S
 - Los artículos no publicados no aparecen en las páginas públicas.
 - No se ofrece un proceso de registro público.
 
+### RF-06: Exponer una API de artículos
+
+La API debe permitir consultar artículos publicados sin autenticación y crear borradores con un token de un usuario administrador de Django.
+
+**Criterios de aceptación**
+
+- `GET /api/articulos/` devuelve una lista JSON de artículos publicados.
+- `GET /api/articulos/<id>/` devuelve un artículo publicado o `404` si no existe o es un borrador.
+- Las respuestas de lectura incluyen `id`, `titulo`, `cuerpo` y `estado`; el estado de cada elemento listado es `publicado`.
+- `POST /api/articulos/` requiere autenticación por token de un usuario con permisos de administración y recibe `titulo` y `cuerpo`.
+- Una creación válida devuelve HTTP `201`, los campos `id`, `titulo`, `cuerpo` y `estado: "borrador"`, y no publica el artículo.
+- Una solicitud sin permisos o con datos inválidos no crea artículos.
+
 ## 6. Requisitos de contenido y datos
 
 ### Artículo
@@ -103,6 +117,8 @@ Cada artículo tendrá, como mínimo:
 - Estado de publicación.
 
 Los artículos publicados se mostrarán en la portada. Los borradores solo estarán disponibles para el editor autenticado mediante el panel administrativo.
+
+La API pública también excluye borradores. La creación de borradores por API requiere un token asociado a un usuario administrador del sitio; no se crea un sistema de usuarios adicional.
 
 El cuerpo admite párrafos separados por líneas en blanco y subtítulos en líneas que comienzan con `## `.
 
@@ -121,7 +137,8 @@ La entrega incluirá contenido de ejemplo relacionado con robótica. Este conten
 - **Accesibilidad:** usar HTML semántico, estructura de encabezados coherente, enlaces descriptivos y controles utilizables con teclado.
 - **Rendimiento:** las páginas informativas deben renderizarse en el servidor con Django y evitar dependencias de JavaScript innecesarias.
 - **Robustez:** las rutas inválidas de artículos deben mostrar una respuesta 404 adecuada.
-- **Seguridad:** el panel administrativo no debe exponer operaciones de edición a visitantes anónimos; se deben seguir las prácticas de seguridad de Django para producción.
+- **Seguridad:** el panel administrativo y la creación de borradores mediante la API no deben exponer operaciones de edición a visitantes anónimos; la API requiere un token de un usuario administrador. Se deben seguir las prácticas de seguridad de Django para producción.
+- **Configuración:** la clave `SECRET_KEY`, `DEBUG` y `ALLOWED_HOSTS` se leen del entorno. Para desarrollo local se permite un `.env` en la raíz, excluido del control de versiones; no se deben incluir secretos reales en el código ni en `.env.example`.
 
 ## 8. Propuesta técnica
 
@@ -136,6 +153,8 @@ La entrega incluirá contenido de ejemplo relacionado con robótica. Este conten
 - `/` — portada y artículos recientes.
 - `/sobre-mi/` — presentación del autor.
 - `/articulos/<slug>/` — detalle de un artículo.
+- `/api/articulos/` — lista JSON de artículos publicados y creación autenticada de borradores.
+- `/api/articulos/<id>/` — detalle JSON de un artículo publicado.
 - `/admin/` — panel administrativo de Django, con acceso restringido.
 
 ## 10. Métricas de éxito

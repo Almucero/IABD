@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 class Article(models.Model):
@@ -20,6 +21,14 @@ class Article(models.Model):
         verbose_name = "artículo"
         verbose_name_plural = "artículos"
         ordering = ("-published_at", "-created_at")
+
+    def save(self, *args, **kwargs):
+        if self.is_published and self.published_at is None:
+            self.published_at = timezone.now()
+            update_fields = kwargs.get("update_fields")
+            if update_fields is not None:
+                kwargs["update_fields"] = set(update_fields) | {"published_at"}
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title

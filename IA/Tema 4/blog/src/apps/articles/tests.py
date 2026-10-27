@@ -145,6 +145,20 @@ class PublicBlogTests(TestCase):
         self.assertFalse(self.draft.is_published)
         self.assertTrue(self.older_article.is_published)
 
+    def test_publishing_without_a_date_assigns_the_current_time(self):
+        article = Article.objects.create(
+            title="Publicación con fecha automática",
+            slug="publicacion-con-fecha-automatica",
+            summary="Una prueba de publicación.",
+            body="Contenido de prueba.",
+            author="Alex Robótica",
+        )
+
+        article.is_published = True
+        article.save(update_fields=["is_published"])
+        article.refresh_from_db()
+        self.assertIsNotNone(article.published_at)
+
     def test_robotics_image_is_stored_under_the_configured_media_directory(self):
         image_path = Path(settings.MEDIA_ROOT) / "images" / "robot-orbit.svg"
 

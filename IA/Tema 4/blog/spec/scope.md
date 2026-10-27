@@ -11,6 +11,7 @@ Publicar y compartir artículos de robótica en un sitio sencillo centrado en la
 - Página «Sobre mí», editable desde la administración.
 - Navegación entre portada, artículos y presentación del autor.
 - Gestión editorial mediante Django Admin.
+- API REST de solo lectura para artículos publicados y creación autenticada de borradores.
 - Contenido de ejemplo editable y diseño adaptable, legible y accesible.
 
 ## Fuera de alcance
