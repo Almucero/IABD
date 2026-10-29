@@ -28,8 +28,7 @@ respuesta = chat(
     tools=[sumar],
 )
 
-# 2. Comprobamos que el modelo ha solicitado
-#    la ejecución de alguna herramienta.
+# 2. Comprobamos que el modelo ha solicitado la ejecución de alguna herramienta.
 assert respuesta.message.tool_calls, (
     "El modelo no ha solicitado ninguna herramienta"
 )
@@ -37,8 +36,7 @@ assert respuesta.message.tool_calls, (
 # Añadimos la respuesta del modelo al historial.
 mensajes.append(respuesta.message)
 
-# 3. Procesamos las llamadas a herramientas
-#    que ha solicitado el modelo.
+# 3. Procesamos las llamadas a herramientas que ha solicitado el modelo.
 for llamada in respuesta.message.tool_calls:
 
     nombre = llamada.function.name
@@ -55,16 +53,14 @@ for llamada in respuesta.message.tool_calls:
 
     print(f"Resultado de la ejecución: {resultado}")
 
-    # 4. Incorporamos el resultado de la herramienta
-    #    al historial de la conversación.
+    # 4. Incorporamos el resultado de la herramienta al historial.
     mensajes.append({
         "role": "tool",
         "tool_name": nombre,
         "content": str(resultado),
     })
 
-# Volvemos a consultar al modelo, ahora con el
-# resultado de la herramienta en el historial.
+# Volvemos a consultar al modelo, ahora con el resultado de la herramienta.
 respuesta_final = chat(
     model="qwen3.8:27b",
     messages=mensajes,
